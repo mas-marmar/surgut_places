@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Сургут · Город впечатлений, вкусов и открытий</title>
+    <script src="https://api-maps.yandex.ru/2.1/?apikey=d4215f2b-79d0-4e79-a38b-3f39d1e67b3f&lang=ru_RU" type="text/javascript"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', 'Roboto', system-ui, sans-serif;
+            background-color: #faf6f0;
+            color: #3e2323;
+            line-height: 1.5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px 24px 48px;
+        }
+        :root {
+            --beige-light: #fdf9f2;
+            --beige-soft: #f3ede3;
+            --beige-warm: #e6d9cc;
+            --brown-deep: #4e3e33;
+            --brown-accent: #7b4c4c;
+            --brown-dark: #1b282f;
+            --card-shadow: 0 8px 20px rgba(70, 50, 40, 0.06);
+        }
+        h1,
+        h2,
+        h3 {
+            font-weight: 500;
+            letter-spacing: -0.01em;
+        }
+        h1 {
+            font-size: 3.2rem;
+            margin-bottom: 8px;
+            color: var(--brown-dark);
+            border-left: 8px solid #b78787;
+            padding-left: 24px;
+        }
+        h2 {
+            font-size: 2.2rem;
+            margin: 40px 0 20px;
+            color: var(--brown-deep);
+            border-bottom: 2px solid var(--beige-warm);
+            padding-bottom: 10px;
+        }
+        .subhead {
+            font-size: 1.2rem;
+            color: #7a6457;
+            margin-bottom: 40px;
+            font-style: italic;
+        }
+        .hero {
+            background: linear-gradient(145deg, #eacfcf 0%, #d49b9b 100%);
+            border-radius: 32px;
+            padding: 40px 40px 30px;
+            margin-bottom: 30px;
+            box-shadow: var(--card-shadow);
+        }
+        .hero p {
+            font-size: 1.25rem;
+            max-width: 700px;
+            color: #2e241e;
+        }
+        .about-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 20px;
+            background: var(--beige-light);
+            border-radius: 28px;
+            padding: 28px 30px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid #ddd0c2;
+        }
+        .about-text {
+            flex: 1 1 280px;
+        }
+        .about-text h2 {
+            margin-top: 0;
+            border-bottom: none;
+            padding-bottom: 0;
+            margin-bottom: 16px;
+            color: #3d2e24;
+        }
+        .about-text p {
+            margin-bottom: 16px;
+            font-size: 1.1rem;
+        }
+        .map-container {
+            flex: 2 1 400px;
+            min-height: 500px;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 2px solid #dacbbc;
+        }
+        #yandex-map {
+            width: 100%;
+            height: 100%;
+            min-height: 500px;
+            background-color: #e3d7cc;
+        }
+        .places-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 28px;
+            margin: 30px 0 20px;
+        }
+        .place-card {
+            background: var(--beige-light);
+            border-radius: 24px;
+            padding: 22px 24px 24px;
+            box-shadow: var(--card-shadow);
+            transition: all 0.2s ease;
+            border: 1px solid #e4d5c6;
+            display: flex;
+            flex-direction: column;
+        }
+        .place-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 18px 30px rgba(100, 70, 50, 0.08);
+            border-color: #c9b2a0;
+        }
+        .place-title {
+            font-size: 1.5rem;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: #4b372a;
+            line-height: 1.2;
+        }
+        .place-address {
+            font-size: 0.9rem;
+            color: #8b7768;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border-bottom: 1px dashed #d6c6b8;
+            padding-bottom: 10px;
+        }
+        .place-address::before {
+            content: "📍";
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+        .place-desc {
+            margin-bottom: 18px;
+            font-size: 0.95rem;
+            color: #3b2d23;
+            flex: 1;
+        }
+        .place-price {
+            background: #e7dbcf;
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 40px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #3e2c1f;
+            align-self: flex-start;
+            margin-top: 8px;
+            border: 1px solid #cbb7a6;
+        }
+        .map-legend {
+            margin-top: 20px;
+            background: #fdf9f2;
+            border-radius: 16px;
+            padding: 16px 20px;
+            border: 1px solid #ddd0c2;
+            font-size: 0.9rem;
+            color: #4b372a;
+        }
+        .legend-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-right: 20px;
+            margin-bottom: 8px;
+        }
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid #3e2e23;
+        }
+        hr {
+            border: none;
+            height: 2px;
+            background: linear-gradient(to right, #d6c4b6, transparent);
+            margin: 40px 0 20px;
+        }
+        .footer-note {
+            margin-top: 50px;
+            text-align: center;
+            color: #7e685a;
+            font-size: 0.9rem;
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 16px;
+            }
+            h1 {
+                font-size: 2.5rem;
+            }
+            .hero {
+                padding: 24px 20px;
+            }
+            .about-section {
+                padding: 20px;
+            }
+            .map-container {
+                min-height: 400px;
+            }
+            #yandex-map {
+                min-height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="hero">
+            <h1>СУРГУТ</h1>
+            <p class="subhead">Город впечатлений, вкусов и открытий</p>
+            <p>Откройте для себя Сургут — город, где северная природа, современный ритм и яркие эмоции соединяются в одном маршруте!</p>
+        </div>
+
+        <section class="about-section">
+            <div class="about-text">
+                <h2>✨ О нас</h2>
+                <p><strong>Сургут — живая душа Сибири.</strong> Мы собрали для вас самые атмосферные места, где история встречается с современностью, а суровая природа — с уютом городских парков.</p>
+                <p>Здесь каждая улочка, музей и набережная рассказывают свою историю. Прогуляйтесь по старому городу, вдохните кедровый воздух и почувствуйте настоящий северный характер.</p>
+                <div class="map-legend">
+                    <div class="legend-item"><span class="legend-dot" style="background:#7b5e4c;"></span> Достопримечательности</div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#a08060;"></span> Парки и отдых</div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#c4a882;"></span> Развлечения</div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#b8956e;"></span> Рестораны</div>
+                </div>
+            </div>
+            <div class="map-container">
+                <div id="yandex-map"></div>
+            </div>
+        </section>
+
+        <h2>📍 Достопримечательности</h2>
+        <div class="places-grid">
+            <div class="place-card">
+                <div class="place-title">Старый Сургут</div>
+                <div class="place-address">ул. Энергетиков, 2 к5</div>
+                <div class="place-desc"><strong>Прикоснись к живой истории</strong><br>Деревянные дома, резные наличники, тихие улочки. Атмосфера старого Сургута, мастер-классы и дух Сибири.</div><span class="place-price">200–500 ₽</span>
+            </div>
+            <div class="place-card">
+                <div class="place-title">Парк «Кедровый Лог»</div>
+                <div class="place-address">Дыши глубже</div>
+                <div class="place-desc"><strong>Настоящий природный оазис</strong><br>Высокие кедры, мягкий свет, свежий воздух. Зимой — сказочный лес с лыжными трассами.</div><span class="place-price">бесплатно</span>
+            </div>
+            <div class="place-card">
+                <div class="place-title">Парк «За Саймой»</div>
+                <div class="place-address">Город у воды</div>
+                <div class="place-desc"><strong>Река, отражающая небо</strong><br>Зелёные аллеи, велодорожки, лавочки с кофе и видом на воду.</div><span class="place-price">бесплатно</span>
+            </div>
+            <div class="place-card">
+                <div class="place-title">Парк «Человечность» (Барсово)</div>
+                <div class="place-address">Пространство, где рождаются мысли</div>
+                <div class="place-desc"><strong>Философское путешествие</strong><br>Арт-объекты, символика, место для внутреннего диалога и вдохновения.</div><span class="place-price">бесплатно</span>
+            </div>
+            <div class="place-card">
+                <div class="place-title">Художественный музей</div>
+                <div class="place-address">ул. 30 лет Победы, 21/2</div>
+                <div class="place-desc"><strong>Искусство, которое вдохновляет</strong><br>Культура Севера и классическое искусство России. Тишина и вдохновение.</div><span class="place-price">150–300 ₽</span>
+            </div>
+            <div class="place-card">
+                <div class="place-title">Галерея современного искусства Стерх</div>
+                <div class="place-address">ул. Магистральная, 34А</div>
+                <div class="place-desc"><strong>Здесь нет привычных рамок</strong><br>Инсталляции, смелые идеи, неожиданные формы. Для тех, кто любит удивляться.</div><span class="place-price">200–400 ₽</span>
+            </div>
+            <div class="place-card">
+                <div class="place-title">Ледовый дворец</div>
+                <div class="place-address">ул. Югорский тракт, 40</div>
+                <div class="place-desc"><strong>Энергия, которую чувствуешь</strong><br>Современная арена, лёд, свет, движение. Можно выйти на лёд самому.</div><span class="place-price">200–600 ₽</span>
+            </div>
+            <div class="place-card">
+                <div class="place-title">Театр СурГУ</div>
+                <div class="place-address">пр. Ленина, 1</div>
+                <div class="place-desc"><strong>Небольшой, но очень живой театр</strong><br>Близость сцены, полное погружение, каждая постановка — прожитая эмоция.</div><span class="place-price">300–800 ₽</span>
+            </div>
+        </div>
+
+        <h2>🧩 Развлечения</h2>
+        <div class="places-grid">
+            <div class="place-card">
+                <div class="place-title">Exitmania (квест)</div>
+                <div class="place-address">ул. Университетская, 11, цоколь</div>
+                <div class="place-desc"><strong>Проверь свою логику</strong><br>Загадки, тайны, ограниченное время. Идеально для друзей и свиданий.</div><span class="place-price">500–1000 ₽/чел</span>
+            </div>
+            <div class="place-card">
+                <div class="place-title">Аутласт (квест)</div>
+                <div class="place-address">Комсомольский пр., 13, 2 этаж</div>
+                <div class="place-desc"><strong>История, в которой ты герой</strong><br>Глубокий сюжет, полное погружение. Вы проживаете историю.</div><span class="place-price">500–900 ₽/чел</span>
+            </div>
+            <div class="place-card">
+                <div class="place-title">Выхода нет (квест)</div>
+                <div class="place-address">пр. Мира, 1, 1 этаж</div>
+                <div class="place-desc"><strong>Адреналин и эмоции</strong><br>Напряжённая атмосфера, неожиданные повороты, полное погружение.</div><span class="place-price">600–1200 ₽/чел</span>
+            </div>
+            <div class="place-card">
+                <div class="place-title">Аэротруба Go Fly</div>
+                <div class="place-address">Набережный пр., 3/2</div>
+                <div class="place-desc"><strong>Свобода полёта</strong><br>Испытайте чувство невесомости. Эмоция, которую сложно сравнить с чем-то ещё.</div><span class="place-price">2000–4000 ₽</span>
+            </div>
+            <div class="place-card">
+                <div class="place-title">Банана Парк</div>
+                <div class="place-address">ул. 30 лет Победы, 46, 3 этаж</div>
+                <div class="place-desc"><strong>Мир детского счастья</strong><br>Аттракционы, игровые зоны, смех и радость. Идеально для семейного отдыха.</div><span class="place-price">500–1500 ₽</span>
+            </div>
+            <div class="place-card">
+                <div class="place-title">Батутный парк YOLO</div>
+                <div class="place-address">Нефтеюганское шоссе, 11 стр. 2</div>
+                <div class="place-desc"><strong>Гравитация отменяется</strong><br>Прыгайте, летайте, пробуйте трюки. Пространство энергии и драйва.</div><span class="place-price">400–800 ₽</span>
+            </div>
+            <div class="place-card">
+                <div class="place-title">Вавилон (боулинг)</div>
+                <div class="place-address">ул. Профсоюзов, 55</div>
+                <div class="place-desc"><strong>Классика, которая объединяет</strong><br>Азарт, лёгкое соперничество, атмосфера отдыха. Средний чек за еду: 3000 ₽.</div><span class="place-price">800–1350 ₽/чел</span>
+            </div>
+            <div class="place-card">
+                <div class="place-title">Anvio VR</div>
+                <div class="place-address">ТРЦ Вершина, ул. Генерала Иванова, 1</div>
+                <div class="place-desc"><strong>Шаг в другую реальность</strong><br>Виртуальный мир, где вы становитесь главным героем. Полное погружение.</div><span class="place-price">700–1300 ₽</span>
+            </div>
+            <div class="place-card">
+                <div class="place-title">Невидалия</div>
+                <div class="place-address">ТРЦ Аура, Нефтеюганское шоссе, 1</div>
+                <div class="place-desc"><strong>Мир иллюзий</strong><br>Реальность играет с восприятием. Необычные комнаты, световые эффекты.</div><span class="place-price">500–1000 ₽</span>
+            </div>
+        </div>
+
+        <h2>🧖 Красота и фитнес</h2>
+        <div class="places-grid">
+            <div class="place-card">
+                <div class="place-title">Thai Way</div>
+                <div class="place-address">пр. Ленина, 18</div>
+                <div class="place-desc"><strong>Гармония тела и разума</strong><br>Островок спокойствия, тайские техники массажа, восстановление сил.</div><span class="place-price">2000–5000 ₽</span>
+            </div>
+            <div class="place-card">
+                <div class="place-title">World Class</div>
+                <div class="place-address">ул. Профсоюзов, 11</div>
+                <div class="place-desc"><strong>Фитнес как стиль жизни</strong><br>Современное пространство, спорт становится удовольствием.</div><span class="place-price">4000–10000 ₽/мес</span>
+            </div>
+            <div class="place-card">
+                <div class="place-title">Фитнес Плаза</div>
+                <div class="place-address">ул. Профсоюзов, 23 / Университетская, 25А</div>
+                <div class="place-desc"><strong>Движение — это энергия</strong><br>Универсальное пространство для новичков и опытных.</div><span class="place-price">2000–5000 ₽/мес</span>
+            </div>
+        </div>
+
+        <h2>🍽️ Рестораны</h2>
+        <div class="places-grid">
+            <div class="place-card">
+                <div class="place-title">ТомЯмБар</div>
+                <div class="place-address">пр. Ленина, 38</div>
+                <div class="place-desc"><strong>Яркие вкусы Азии</strong><br>Том Ям, Пад Тай, рис с морепродуктами. Астрономическое путешествие.</div><span class="place-price">800–1500 ₽</span>
+            </div>
+            <div class="place-card">
+                <div class="place-title">Китаист</div>
+                <div class="place-address">пр. Ленина, 39</div>
+                <div class="place-desc"><strong>Аутентичный Китай</strong><br>Утка по-пекински, лапша, димсамы. Глубокие вкусы и восточная атмосфера.</div><span class="place-price">1000–1800 ₽</span>
+            </div>
+            <div class="place-card">
+                <div class="place-title">The Kinto</div>
+                <div class="place-address">ул. Университетская, 29</div>
+                <div class="place-desc"><strong>Грузинское тепло</strong><br>Хинкали, хачапури, шашлык. Щедрые порции и настоящее гостеприимство.</div><span class="place-price">1200–2000 ₽</span>
+            </div>
+            <div class="place-card">
+                <div class="place-title">Seven</div>
+                <div class="place-address">ТРЦ Вершина, ул. Генерала Иванова, 1</div>
+                <div class="place-desc"><strong>Городской стиль и вкус</strong><br>Стейки, паста, десерты. Эстетика подачи и атмосфера для особенных встреч.</div><span class="place-price">1500–2500 ₽</span>
+            </div>
+            <div class="place-card">
+                <div class="place-title">Хурма</div>
+                <div class="place-address">пр. Мира, 31/1</div>
+                <div class="place-desc"><strong>Уют, к которому возвращаются</strong><br>Мясо на гриле, салаты, десерты. Тёплая атмосфера и разнообразное меню.</div><span class="place-price">1000–1800 ₽</span>
+            </div>
+            <div class="place-card">
+                <div class="place-title">Краснодарский парень</div>
+                <div class="place-address">пр. Мира, 42</div>
+                <div class="place-desc"><strong>Просто и вкусно</strong><br>Сочные бургеры, картофель фри. Лёгкая атмосфера.</div><span class="place-price">600–1000 ₽</span>
+            </div>
+            <div class="place-card">
+                <div class="place-title">Перчини</div>
+                <div class="place-address">пр. Ленина, 17</div>
+                <div class="place-desc"><strong>Италия рядом</strong><br>Паста Карбонара, пицца, тирамису. Ощущение настоящего итальянского вечера.</div><span class="place-price">900–1500 ₽</span>
+            </div>
+            <div class="place-card">
+                <div class="place-title">ЮжанеГорожане</div>
+                <div class="place-address">ул. Университетская, 10</div>
+                <div class="place-desc"><strong>Сытные блюда и домашний уют</strong><br>Шашлык, хачапури, закуски. Насыщенные вкусы.</div><span class="place-price">1200–2000 ₽</span>
+            </div>
+        </div>
+
+        <h2>⚽ Спорт</h2>
+        <div class="places-grid">
+            <div class="place-card">
+                <div class="place-title">Ледовая арена «Титан»</div>
+                <div class="place-address">Пролетарский пр., 6/1</div>
+                <div class="place-desc"><strong>Сила и характер</strong><br>Тренировки, занятия. Место для тех, кто работает над собой.</div><span class="place-price">2000–4000 ₽/мес</span>
+            </div>
+            <div class="place-card">
+                <div class="place-title">Каток Сити Молл</div>
+                <div class="place-address">Югорский тракт, 38</div>
+                <div class="place-desc"><strong>Лёд, который объединяет</strong><br>Лёгкость движения, музыка, атмосфера, в которой хочется улыбаться.</div><span class="place-price">300–700 ₽</span>
+            </div>
+        </div>
+        <hr>
+        <div class="footer-note">© Сургут · город впечатлений. Все места собраны с любовью.</div>
+    </div>
+
+    <script type="text/javascript">
+        ymaps.ready(initMap);
+
+        function initMap() {
+            var map = new ymaps.Map('yandex-map', {
+                center: [61.25, 73.40],
+                zoom: 13,
+                controls: ['zoomControl', 'fullscreenControl']
+            }, {
+                suppressMapOpenBlock: true
+            });
+
+            var places = [
+                { name: 'Старый Сургут', coords: [61.236996, 73.408367], address: 'ул. Энергетиков, 2 к5', color: '#7b5e4c' },
+                { name: 'Парк «Кедровый Лог»', coords: [61.262845, 73.354192], address: '', color: '#a08060' },
+                { name: 'Парк «За Саймой»', coords: [61.245800, 73.422336], address: 'Город у воды', color: '#a08060' },
+                { name: 'Парк «Человечность» (Барсово)', coords: [61.255419, 73.178651], address: 'Философское пространство', color: '#a08060' },
+                { name: 'Художественный музей', coords: [61.253712, 73.423093], address: 'ул. 30 лет Победы, 21/2', color: '#7b5e4c' },
+                { name: 'Галерея совр. искусства Стерх', coords: [61.258231, 73.375057], address: 'ул. Магистральная, 34А', color: '#7b5e4c' },
+                { name: 'Ледовый дворец', coords: [61.238042, 73.377420], address: 'ул. Югорский тракт, 40', color: '#7b5e4c' },
+                { name: 'Театр СурГУ', coords: [61.239822, 73.410882], address: 'пр. Ленина, 1', color: '#7b5e4c' },
+                { name: 'Exitmania', coords: [61.247306, 73.419224], address: 'ул. Университетская, 11', color: '#c4a882' },
+                { name: 'Аутласт', coords: [61.240126, 73.439711], address: 'Комсомольский пр., 13', color: '#c4a882' },
+                { name: 'Выхода нет', coords: [61.262624, 73.379101], address: 'пр. Мира, 1', color: '#c4a882' },
+                { name: 'Аэротруба Go Fly', coords: [61.248533, 73.375639], address: 'Набережный пр., 3/2', color: '#c4a882' },
+                { name: 'Банана Парк', coords: [61.253997, 73.432411], address: 'ул. 30 лет Победы, 46', color: '#c4a882' },
+                { name: 'Батутный парк YOLO', coords: [61.274934, 73.385889], address: 'Нефтеюганское шоссе, 11c2', color: '#c4a882' },
+                { name: 'Вавилон (боулинг)', coords: [61.263467, 73.432359], address: 'ул. Профсоюзов, 55', color: '#c4a882' },
+                { name: 'Anvio VR', coords: [61.256473, 73.430877], address: 'ТРЦ Вершина, ул. Генерала Иванова, 1', color: '#c4a882' },
+                { name: 'Невидалия', coords: [61.277526, 73.365248], address: 'ТРЦ Аура, Нефтеюганское шоссе, 1', color: '#c4a882' },
+                { name: 'Thai Way', coords: [61.247741, 73.405401], address: 'пр. Ленина, 18', color: '#a08060' },
+                { name: 'World Class', coords: [61.269325, 73.382061], address: 'ул. Профсоюзов, 11', color: '#a08060' },
+                { name: 'Фитнес Плаза', coords: [61.267791, 73.393770], address: 'ул. Профсоюзов, 23', color: '#a08060' },
+                { name: 'ТомЯмБар', coords: [61.254688, 73.394191], address: 'пр. Ленина, 38', color: '#b8956e' },
+                { name: 'Китаист', coords: [61.254563, 73.388270], address: 'пр. Ленина, 39', color: '#b8956e' },
+                { name: 'The Kinto', coords: [61.250313, 73.443034], address: 'ул. Университетская, 29', color: '#b8956e' },
+                { name: 'Seven', coords: [61.256448, 73.431586], address: 'ТРЦ Вершина', color: '#b8956e' },
+                { name: 'Хурма', coords: [61.259582, 73.402653], address: 'пр. Мира, 31/1', color: '#b8956e' },
+                { name: 'Краснодарский парень', coords: [61.256591, 73.420818], address: 'пр. Мира, 42', color: '#b8956e' },
+                { name: 'Перчини', coords: [61.250560, 73.401470], address: 'пр. Ленина, 17', color: '#b8956e' },
+                { name: 'ЮжанеГорожане', coords: [61.246392, 73.419209], address: 'ул. Университетская, 10', color: '#b8956e' },
+                { name: 'Ледовая арена «Титан»', coords: [61.250774, 73.435481], address: 'Пролетарский пр., 6/1', color: '#7b5e4c' },
+                { name: 'Каток Сити Молл', coords: [61.238966, 73.374714], address: 'Югорский тракт, 38', color: '#7b5e4c' }
+            ];
+
+            places.forEach(function(place) {
+                var placemark = new ymaps.Placemark(place.coords, {
+                    hintContent: place.name,
+                    balloonContent: '<strong>' + place.name + '</strong><br>' + place.address
+                }, {
+                    preset: 'islands#circleIcon',
+                    iconColor: place.color,
+                    iconStrokeColor: '#3e2e23',
+                    iconStrokeWidth: 2
+                });
+                map.geoObjects.add(placemark);
+            });
+
+            map.setBounds(map.geoObjects.getBounds(), {
+                checkZoomRange: true,
+                zoomMargin: 50
+            }).then(function() {
+                if (map.getZoom() > 15) map.setZoom(14);
+                if (map.getZoom() < 11) map.setZoom(12);
+            });
+        }
+    </script>
+</body>
+</html>
